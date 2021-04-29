@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <html>
+      <title>HW 9.27 and 9.28</title>
+      <head>
+        <script type="text/javascript">
+          var number1;
+          var number2;
+          var answer3;
+          var answer2;
+
+          function problem() {
+            number1 = Math.floor(1 + Math.random() * 9);
+            number2 = Math.floor(1 + Math.random() * 9);
+            document.getElementById("prompt").innerHTML =
+              "Solve " + number1 + " times " + number2 + " !";
+            answer2 = number1 * number2;
+          }
+
+          function answer1() {
+            var statusDiv = document.getElementById("status");
+            answer3 = document.getElementById("answer").value;
+
+            if (answer3 != answer2)
+              statusDiv.innerHTML = "No. Please try again";
+            else if (answer3 == answer2) {
+              statusDiv.innerHTML = "Very good!";
+              problem();
+            }
+          }
+        </script>
+      </head>
+      <body onload="problem();">
+        <form>
+          <div id="prompt"></div>
+          <input id="answer" type="text" />
+          <input type="button" value="Solve!" onclick="answer1()" />
+          <div id="status">Click the Solve button to Solve the problem</div>
+        </form>
+      </body>
+    </html>
+  </body>
+</html>
