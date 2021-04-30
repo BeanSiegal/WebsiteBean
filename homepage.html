@@ -18,8 +18,9 @@
           function problem() {
             number1 = Math.floor(1 + Math.random() * 9);
             number2 = Math.floor(1 + Math.random() * 9);
-            document.getElementById("prompt").innerHTML =
-              "Solve " + number1 + " times " + number2 + " !";
+            var question = document.getElementById("question");
+            question.innerHTML =
+              "How much is " + number1 + " times " + number2 + " ?";
             answer2 = number1 * number2;
           }
 
@@ -31,18 +32,22 @@
               statusDiv.innerHTML = "No. Please try again";
             else if (answer3 == answer2) {
               statusDiv.innerHTML = "Very good!";
+              document.getElementById("answer").value = "";
               problem();
             }
           }
         </script>
       </head>
-      <body onload="problem();">
+      <body>
         <form>
-          <div id="prompt"></div>
+          <div id="question"></div>
           <input id="answer" type="text" />
           <input type="button" value="Solve!" onclick="answer1()" />
           <div id="status">Click the Solve button to Solve the problem</div>
         </form>
+        <script type="text/javascript">
+          problem();
+        </script>
       </body>
     </html>
   </body>
