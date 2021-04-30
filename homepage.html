@@ -7,46 +7,253 @@
   </head>
   <body>
     <html>
-      <title>HW 9.27 and 9.28</title>
-      <head>
-        <script type="text/javascript">
-          var number1;
-          var number2;
-          var answer3;
-          var answer2;
+      <style>
+        body {
+          background-color: black;
+        }
+      </style>
+      <body>
+        <video id="video0" style="position: absolute; left: 0; top: 0" ;>
+          <source
+            src="https://od.lk/s/OF8xNjAwMTcxMTdf/0.mp4"
+            type="video/mp4"
+          />
+        </video>
+        <video
+          id="video1"
+          style="position: absolute; left: 0; top: 0; visibility: hidden"
+        >
+          <source
+            src="https://od.lk/s/OF8xNjAwMTcxMTZf/1.mp4"
+            type="video/mp4"
+          />
+        </video>
+        <canvas
+          id="myCanvas"
+          width="636"
+          height="360"
+          style="position: absolute; left: 0; top: 0"
+        ></canvas>
 
-          function problem() {
-            number1 = Math.floor(1 + Math.random() * 9);
-            number2 = Math.floor(1 + Math.random() * 9);
-            var question = document.getElementById("question");
-            question.innerHTML =
-              "How much is " + number1 + " times " + number2 + " ?";
-            answer2 = number1 * number2;
+        <script>
+          let myCanvas = document.getElementById("myCanvas");
+          let video = [];
+          video[0] = document.getElementById("video0");
+          video[1] = document.getElementById("video1");
+          let bubbleImage = new Image();
+          bubbleImage.src = "bubble.png";
+          let playButton = new Image();
+          playButton.src = "play.png";
+          let sound1 = new Audio("correct.mp3"),
+            sound2 = new Audio("incorrect.mp3"),
+            sound3 = new Audio("win.mp3");
+
+          video[0].playsInline = "true";
+          video[1].playsInline = "true";
+          const operator = "*";
+          const coordinates = [89, 29, 12, 25, -19, 17, -42, 46, 182, 31];
+          const urls = [
+            "https://od.lk/s/OF8xNjAwMTcxMTVf/2.mp4",
+            "https://od.lk/s/OF8xNjAwMTcxMTRf/3.mp4",
+            "https://od.lk/s/OF8xNjAwMTcxMTNf/4.mp4",
+            "https://od.lk/s/OF8xNjAwMTcxMTJf/5.mp4",
+          ];
+          let currentVid,
+            mainVideo,
+            bufferVideo,
+            correctRow,
+            firstNumber,
+            secondNumber,
+            correctAnswer,
+            aspect,
+            boxHeight,
+            counter,
+            windowWidth,
+            windowHeight;
+          let context = myCanvas.getContext("2d");
+          let mode = "init";
+          let answers = [];
+
+          function updateCounter() {
+            if (counter) counter--;
+            if (counter == 1) {
+              context.clearRect(0, 0, myCanvas.width, myCanvas.height);
+            }
+            window.requestAnimationFrame(updateCounter);
           }
 
-          function answer1() {
-            var statusDiv = document.getElementById("status");
-            answer3 = document.getElementById("answer").value;
-
-            if (answer3 != answer2)
-              statusDiv.innerHTML = "No. Please try again";
-            else if (answer3 == answer2) {
-              statusDiv.innerHTML = "Very good!";
-              document.getElementById("answer").value = "";
-              problem();
+          function newQuestion() {
+            firstNumber = Math.floor(Math.random() * 9) + 1;
+            secondNumber = Math.floor(Math.random() * 9) + 1;
+            correctRow = Math.floor(Math.random() * 4);
+            if (operator == "+") correctAnswer = firstNumber + secondNumber;
+            else correctAnswer = firstNumber * secondNumber;
+            answers[correctRow] = correctAnswer;
+            for (let row = 0; row < 4; row++) {
+              if (row !== correctRow) {
+                answers[row] =
+                  correctAnswer + Math.floor(Math.random() * 10 + 1);
+              }
             }
           }
-        </script>
-      </head>
-      <body>
-        <form>
-          <div id="question"></div>
-          <input id="answer" type="text" />
-          <input type="button" value="Solve!" onclick="answer1()" />
-          <div id="status">Click the Solve button to Solve the problem</div>
-        </form>
-        <script type="text/javascript">
-          problem();
+
+          function displayQuestion() {
+            let xCoordinate = coordinates[currentVid * 2] / aspect;
+            let yCoordinate = coordinates[currentVid * 2 + 1] / aspect;
+            context.drawImage(
+              bubbleImage,
+              xCoordinate,
+              yCoordinate,
+              bubbleImage.width / aspect,
+              bubbleImage.height / aspect
+            );
+            context.fillStyle = "black";
+            context.font = "bold 36px sans-serif";
+            context.fillText(
+              firstNumber + " " + operator + " " + secondNumber,
+              xCoordinate + 50 / aspect,
+              yCoordinate + 60 / aspect
+            );
+            for (let row = 0; row < 4; row++) {
+              context.fillStyle = "gray";
+              context.fillRect(
+                windowWidth * 0.75,
+                row * boxHeight,
+                windowWidth * 0.25,
+                boxHeight * 0.9
+              );
+              context.fillStyle = "black";
+              context.fillText(
+                answers[row],
+                windowWidth * 0.8,
+                40 / aspect + row * boxHeight
+              );
+            }
+          }
+
+          function completed() {
+            currentVid++;
+            if (currentVid < urls.length + 1) {
+              video[bufferVideo].style.visibility = "visible";
+              video[mainVideo].style.visibility = "hidden";
+              if (currentVid < urls.length) {
+                video[mainVideo].src = urls[currentVid];
+                video[mainVideo].load();
+              }
+              if (mainVideo == 0) {
+                mainVideo = 1;
+                bufferVideo = 0;
+              } else {
+                mainVideo = 0;
+                bufferVideo = 1;
+              }
+              mode = "question";
+              newQuestion();
+              displayQuestion();
+            } else {
+              context.fillStyle = "black";
+              context.fillText(
+                "You win! Click to restart.",
+                windowWidth / 2,
+                40
+              );
+              sound3.play();
+              mode = "gameOver";
+            }
+          }
+
+          function resize() {
+            windowWidth = window.innerWidth;
+            windowHeight = window.innerHeight;
+            aspect = 636 / window.innerWidth;
+            if (360 / aspect > windowHeight) {
+              video[0].style.height = windowHeight;
+              video[1].style.height = windowHeight;
+              aspect = 360 / windowHeight;
+            } else {
+              video[0].style.width = windowWidth;
+              video[1].style.width = windowWidth;
+            }
+
+            myCanvas.width = windowWidth;
+            myCanvas.height = windowHeight;
+            boxHeight = windowHeight / 4;
+            if (mode == "question") {
+              displayQuestion();
+            }
+          }
+
+          function reset() {
+            counter = 0;
+            video[0].load();
+            video[1].load();
+            currentVid = -1;
+            mainVideo = 0;
+            bufferVideo = 1;
+            mode = "init";
+            context.clearRect(0, 0, windowWidth, windowHeight);
+            context.drawImage(
+              playButton,
+              (windowWidth - playButton.width) / 2,
+              (windowHeight - playButton.height) / 2,
+              playButton.width / aspect,
+              playButton.height / aspect
+            );
+          }
+
+          window.onload = function () {
+            resize();
+            reset();
+          };
+
+          myCanvas.onclick = function (e) {
+            switch (mode) {
+              case "init":
+                context.clearRect(0, 0, myCanvas.width, myCanvas.height);
+                video[mainVideo].play();
+                mode = "video";
+                break;
+              case "question":
+                let y = e.offsetY;
+                if (
+                  y > correctRow * boxHeight &&
+                  y < (correctRow + 1) * boxHeight
+                ) {
+                  video[mainVideo].play();
+                  mode = "video";
+                  sound1.play();
+                  context.clearRect(0, 0, myCanvas.width, myCanvas.height);
+                  context.fillStyle = "white";
+                  context.fillText(
+                    correctAnswer,
+                    windowWidth * 0.8,
+                    40 / aspect + correctRow * boxHeight
+                  );
+                  counter = 100;
+                } else {
+                  context.fillStyle = "red";
+                  let row = Math.floor(y / boxHeight);
+                  context.fillText(
+                    answers[row],
+                    windowWidth * 0.8,
+                    40 / aspect + row * boxHeight
+                  );
+                  sound2.play();
+                }
+                break;
+              case "gameOver":
+                video[0].src = "https://od.lk/s/OF8xNjAwMTcxMTdf/0.mp4";
+                video[1].src = "https://od.lk/s/OF8xNjAwMTcxMTZf/1.mp4";
+                video[0].style.visibility = "visible";
+                video[1].style.visibility = "hidden";
+                reset();
+            }
+          };
+
+          window.onresize = resize;
+          video[0].onended = completed;
+          video[1].onended = completed;
+          updateCounter();
         </script>
       </body>
     </html>
